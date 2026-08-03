@@ -1,0 +1,42 @@
+name: Build Flutter APK
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. جلب الكود من المستودع
+      - uses: actions/checkout@v4
+
+      # 2. إعداد الجافا (ضروري لبناء الأندرويد)
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # 3. إعداد محرك الفلوتر (هذه هي الخطوة الناقصة عندك)
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      # 4. تحميل المكتبات المطلوبة
+      - name: Install dependencies
+        run: flutter pub get
+
+      # 5. بناء ملف الـ APK
+      - name: Build APK
+        run: flutter build apk --release
+
+      # 6. استخراج الملف لكي يظهر لك في التحميلات
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: staff-app-release
+          path: build/app/outputs/flutter-apk/app-release.apk
